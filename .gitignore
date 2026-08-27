@@ -1,0 +1,41 @@
+# Conda & Virtual Environments
+.conda/
+envs/
+env/
+.venv/
+venv/
+ENV/
+
+# Python cache & build files
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Data & Sensitive Test Files (CRITICAL for GDPR)
+# Never commit sample PDFs/Excel files containing real PII
+data/
+samples/
+test_docs/
+*.pdf
+*.docx
+*.xlsx
+*.csv
+*.sqlite3
+dump.rdb
+
+# Editor & OS Artifacts
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

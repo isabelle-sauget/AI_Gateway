@@ -27,6 +27,7 @@ packaging==26.3
 phonenumbers==9.0.37
 preshed==3.0.13
 presidio_analyzer==2.2.364
+presidio_anonymizer==2.2.364
 pydantic==2.13.4
 pydantic_core==2.46.4
 Pygments==2.21.0

@@ -36,6 +36,7 @@ PyYAML==6.0.3
 regex==2026.7.19
 requests==2.34.2
 requests-file==3.0.1
+redis==8.1.0
 rich==15.0.0
 ro_core_news_sm @ https://github.com/explosion/spacy-models/releases/download/ro_core_news_sm-3.8.0/ro_core_news_sm-3.8.0-py3-none-any.whl#sha256=3cebfba2437131efe95345adcc7ea2131e4463915652df9099c577e618460cd9
 sendgrid==6.12.5

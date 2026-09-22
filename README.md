@@ -1,1 +1,5 @@
 # AI_Gateway
+
+This application is a GDPR-Compliant AI Gateway and Data Agent built for small-to-medium businesses. It provides a familiar chat interface where employees can upload sensitive documents or query company data using artificial intelligence, without violating data privacy laws.
+
+It achieves this through two distinct security layers. First, a local Privacy Proxy scans all uploaded documents and chat prompts, masking Personally Identifiable Information (PII) before the text is sent to third-party AI models (like OpenAI or Anthropic). Second, an integrated Model Context Protocol (MCP) Server connects to local structured data (imported from Excel/CSV files). This allows employees to ask natural language questions about their spreadsheets or databases, with the AI generating SQL queries to fetch the answers locally, ensuring the AI never actually "sees" the underlying sensitive database rows.

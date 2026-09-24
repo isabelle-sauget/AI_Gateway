@@ -47,7 +47,7 @@ def anonymize_and_store(text: str, analyzer: AnalyzerEngine) -> Tuple[str, str]:
     )
 
     # 2. Strict false positive filtering
-    false_positives = ["CNP", "C.N.P.", "POSESOR AL CNP", "NR", "NR.", "CETATEAN", "CETĂȚEAN"]
+    false_positives = ["CNP", "C.N.P.", "POSESOR AL CNP", "NR", "NR.", "CETATEAN", "CETĂȚEAN","IBAN"]
     clean_results = []
     street_matches = [res for res in results if res.entity_type == "ROMANIAN_STREET"]
 

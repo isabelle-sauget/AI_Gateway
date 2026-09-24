@@ -12,3 +12,6 @@ def test_redis_connection() -> None:
 
 if __name__ == "__main__":
     test_redis_connection()
+
+# docker start redis-stack in the terminal
+#  to run the Redis server

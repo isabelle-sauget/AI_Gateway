@@ -1,5 +1,35 @@
-# AI_Gateway
+# AI Gateway
 
-This application is a GDPR-Compliant AI Gateway and Data Agent built for small-to-medium businesses. It provides a familiar chat interface where employees can upload sensitive documents or query company data using artificial intelligence, without violating data privacy laws.
+This project is a GDPR-oriented AI gateway. It detects Romanian personal data locally, replaces it with placeholders, sends only the scrubbed text to an AI provider, and restores the original values in the final response.
 
-It achieves this through two distinct security layers. First, a local Privacy Proxy scans all uploaded documents and chat prompts, masking Personally Identifiable Information (PII) before the text is sent to third-party AI models (like OpenAI or Anthropic). Second, an integrated Model Context Protocol (MCP) Server connects to local structured data (imported from Excel/CSV files). This allows employees to ask natural language questions about their spreadsheets or databases, with the AI generating SQL queries to fetch the answers locally, ensuring the AI never actually "sees" the underlying sensitive database rows.
+The application entry point is `app/main.py`.
+
+## Project structure
+
+```text
+app/
+    main.py                 FastAPI app, lifespan, and router registration
+    api/
+        dependencies.py     Request-scoped access to shared application resources
+        routes/
+            document.py     GET /health and POST /api/v1/process-document
+    core/
+        config.py           Pydantic settings loaded from .env
+    schemas/
+        document.py         Pydantic request and response models
+    services/
+        gemini_client.py    Gemini connection logic
+        redis_client.py     Redis connection logic
+        privacy_service.py  PII detection, masking, and restoration
+        recognizers.py      Romanian-specific Presidio recognizers
+```
+
+## Routes
+
+### `GET /health`
+
+Checks that the API process is running and reports whether Redis responds to a ping. It is useful for local checks and deployment health probes.
+
+### `POST /api/v1/process-document`
+
+Accepts document text, masks detected PII, sends the safe text to Gemini, then restores the original values in the returned AI response. The response also exposes the intermediate scrubbed text for learning and testing.

@@ -55,7 +55,7 @@ class RomanianPhoneRecognizer(PatternRecognizer):
     def __init__(self):
         super().__init__(
             supported_entity="ROMANIAN_PHONE",
-            patterns=[Pattern(name="phone_regex", regex=r"\b(?:\+40\s?|0)[237]\d(?:[\s\.\-]*\d){7}\b", score=0.85)],
+            patterns=[Pattern(name="phone_regex", regex=r"(?:(?:\+40|0040)[-.\s]?|0)[237]\d{2}(?:[-.\s]?\d{3}){2}", score=0.85)],
             context=["telefon", "tel", "mobil", "fix", "contact"],
             supported_language="ro",
         )

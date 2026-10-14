@@ -24,13 +24,15 @@ from app.services.recognizers import (
     RomanianEUIDRecognizer,
     RomanianCAENRecognizer,
     RomanianInstitutionRecognizer,
+    RomanianLicensePlateRecognizer,
 )
 
 ENTITY_TYPES = [
     "PERSON", "LOCATION", "ORGANIZATION", "ROMANIAN_CNP", "ROMANIAN_ID_SERIA",
     "ROMANIAN_ID_NUMAR", "EMAIL_ADDRESS", "ROMANIAN_PHONE", "ROMANIAN_ADDRESS_DETAIL",
     "ROMANIAN_STREET", "ROMANIAN_DATE", "NATIONALITY", "ROMANIAN_IBAN","ROMANIAN_CUI",
-    "ROMANIAN_TRADE_REGISTER", "ROMANIAN_EUID", "ROMANIAN_CAEN","ROMANIAN_INSTITUTION"
+    "ROMANIAN_TRADE_REGISTER", "ROMANIAN_EUID", "ROMANIAN_CAEN","ROMANIAN_INSTITUTION",
+    "ROMANIAN_LICENSE_PLATE"
 ]
 FALSE_POSITIVES = {
     "CNP", "C.N.P.", "POSESOR AL CNP", "NR", "NR.", "CETATEAN", "CETĂȚEAN", "IBAN",
@@ -66,7 +68,7 @@ def initialize_analyzer() -> AnalyzerEngine:
         RomanianDateRecognizer(), RomanianPhoneRecognizer(), RomanianAddressDetailRecognizer(),
         RomanianStreetRecognizer(), RomanianNationalityRecognizer(), RomanianIbanRecognizer(),
         RomanianCompanyRecognizer(), RomanianCUIRecognizer(), RomanianTradeRegisterRecognizer(), RomanianEUIDRecognizer(),
-        RomanianCAENRecognizer(), RomanianInstitutionRecognizer()
+        RomanianCAENRecognizer(), RomanianInstitutionRecognizer(), RomanianLicensePlateRecognizer()
     ]:
         analyzer.registry.add_recognizer(recognizer)
     return analyzer
@@ -96,7 +98,15 @@ def resolve_overlaps(results: list[RecognizerResult]) -> list[RecognizerResult]:
 
     return sorted(selected, key=lambda x: x.start)
 
+DIACRITIC_MAP = str.maketrans({
+    "ş": "ș",
+    "ţ": "ț",
+    "Ş": "Ș",
+    "Ţ": "Ț",
+})
+
 def anonymize_and_store(text: str, analyzer: AnalyzerEngine, redis_client: redis.Redis) -> Tuple[str, str]:
+    text = text.translate(DIACRITIC_MAP)
     raw_results = analyzer.analyze(text=text, language="ro", entities=ENTITY_TYPES, score_threshold=0.4)
     filtered_results: list[RecognizerResult] = []
 

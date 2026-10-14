@@ -43,10 +43,25 @@ class RomanianIDNumberRecognizer(PatternRecognizer):
 
 class RomanianDateRecognizer(PatternRecognizer):
     def __init__(self):
+        # Strictly validates Day (01-31), Month (01-12), and Year (1900-2099)
+        # Supports optional day ranges like "18–31.08.2026"
+        date_numeric = Pattern(
+            name="ro_date_numeric",
+            regex=r"(?<!\d)(?:(?:0?[1-9]|[12]\d|3[01])[ \t]*[\-–][ \t]*)?(?:0?[1-9]|[12]\d|3[01])\.(?:0?[1-9]|1[0-2])\.(?:19|20)\d{2}(?!\d)",
+            score=0.85,
+        )
+
+        # Text-month format: e.g., "14 iunie 2019" or "august 2026"
+        date_text = Pattern(
+            name="ro_date_text",
+            regex=r"(?i)\b(?:(?:0?[1-9]|[12]\d|3[01])[ \t]+)?(?:ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie)[ \t]+(?:19|20)\d{2}\b",
+            score=0.85,
+        )
+
         super().__init__(
             supported_entity="ROMANIAN_DATE",
-            patterns=[Pattern(name="date_regex", regex=r"\b\d{1,2}[\./-]\d{1,2}[\./-]\d{2,4}\b", score=0.85)],
-            context=["data", "eliberat", "eliberării", "născut"],
+            patterns=[date_numeric, date_text],
+            context=["data", "eliberat", "eliberării", "eliberată", "eliberată", "născut", "din", "perioada"],
             supported_language="ro",
         )
 
@@ -101,16 +116,24 @@ class RomanianIbanRecognizer(PatternRecognizer):
         )
 
 class RomanianCompanyRecognizer(PatternRecognizer):
+    # Pattern 1
     def __init__(self):
-        # Explicitly added A-Z and uppercase diacritics to make it bulletproof
         company_pattern = Pattern(
             name="romanian_company",
-            regex=r"(?i)\b(?:S\.C\.|SC|SOCIETATEA)?\s*(?:[A-Za-zĂÂÎȘȚăâîșț0-9\-&]+\s+){1,6}(?:S\.R\.L\.|SRL|S\.A\.|SA|S\.N\.C\.|SNC|S\.C\.S\.|SCS|S\.C\.A\.|SCA)\.?",
+            regex=r"\b(?:S\.?C\.?[ \t]+)?[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț0-9\-&]*(?:[ \t]+(?:de|și|ale|la|pentru|[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț0-9\-&]*)){0,5}[ \t]+(?:S\.R\.L\.|SRL|S\.A\.|SA|S\.C\.S\.|S\.N\.C\.|P\.F\.A\.|PFA|I\.I\.|I\.F\.)(?![A-Za-zĂÂÎȘȚăâîșț])",
             score=0.85
         )
+
+        # Pattern 2: Law cabinets and professional offices
+        cabinet_pattern = Pattern(
+            name="law_cabinet_regex",
+            regex=r"\b[Cc]abinet(?:ul|ului)?[ \t]+(?:[Ii]ndividual[ \t]+)?de[ \t]+[Aa]vocat(?:ură)?[ \t]+[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\-]+(?:[ \t]+[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\-]+){0,3}\b",
+            score=0.85,
+        )
+
         super().__init__(
             supported_entity="ORGANIZATION",
-            patterns=[company_pattern],
+            patterns=[company_pattern, cabinet_pattern],
             supported_language="ro",
         )
 
@@ -222,11 +245,26 @@ class RomanianInstitutionRecognizer(PatternRecognizer):
         # Catches standard ID issuers, police, and courts + their subsequent locations/sectors
         inst_pattern = Pattern(
             name="institution_regex",
-            regex=r"(?i)\b(?:SPCEP|SCPLEP|SPCLEP|SPCJE|DEPABD|Poliția|Primăria|Judecătoria|Tribunalul|Curtea de Apel)\s+(?:Sector\s*\d+|[A-Za-zĂÂÎȘȚăâîșț]+(?:[\s\-][A-Za-zĂÂÎȘȚăâîșț]+)*)",
+            regex=r"(?i)\b(?:SPCEP|SCPLEP|SPCLEP|SPCJE|DEPABD|Poliția|Primăria|Judecătoria|Tribunalul|Curtea de Apel|Oficiul Registrului Comerțului|Baroul)[ \t]+(?:Sector[ \t]*\d+|[A-Za-zĂÂÎȘȚăâîșț]+(?:[ \t\-][A-Za-zĂÂÎȘȚăâîșț]+)*)",
             score=0.85
         )
         super().__init__(
             supported_entity="ORGANIZATION", # Maps seamlessly into your existing ORGANIZATION tags
             patterns=[inst_pattern],
+            supported_language="ro",
+        )
+
+class RomanianLicensePlateRecognizer(PatternRecognizer):
+    def __init__(self):
+        # Matches Bucharest (B + 2-3 digits + 3 uppercase letters) or Counties (2 letters + 2 digits + 3 uppercase letters)
+        plate_pattern = Pattern(
+            name="ro_license_plate",
+            regex=r"\b(?:B[ \t\-]*\d{2,3}|(?:AB|AR|AG|BC|BH|BN|BT|BV|BR|BZ|CS|CL|CJ|CT|CV|DB|DJ|GL|GR|GJ|HR|HD|IL|IS|IF|MM|MH|MS|NT|OT|PH|SM|SJ|SB|SV|TR|TM|TL|VS|VL|VN)[ \t\-]*\d{2})[ \t\-]*[A-Z]{3}\b",
+            score=0.85,
+        )
+        super().__init__(
+            supported_entity="ROMANIAN_LICENSE_PLATE",
+            patterns=[plate_pattern],
+            context=["înmatriculare", "autoturism", "autoturismul", "auto", "vehicul"],
             supported_language="ro",
         )

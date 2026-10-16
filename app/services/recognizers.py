@@ -61,7 +61,6 @@ class RomanianDateRecognizer(PatternRecognizer):
         super().__init__(
             supported_entity="ROMANIAN_DATE",
             patterns=[date_numeric, date_text],
-            context=["data", "eliberat", "eliberării", "eliberată", "eliberată", "născut", "din", "perioada"],
             supported_language="ro",
         )
 
@@ -118,16 +117,17 @@ class RomanianIbanRecognizer(PatternRecognizer):
 class RomanianCompanyRecognizer(PatternRecognizer):
     # Pattern 1
     def __init__(self):
+        # (?-i:...) forces strict case-sensitivity, overriding Presidio's default re.IGNORECASE flag
         company_pattern = Pattern(
-            name="romanian_company",
-            regex=r"\b(?:S\.?C\.?[ \t]+)?[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț0-9\-&]*(?:[ \t]+(?:de|și|ale|la|pentru|[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț0-9\-&]*)){0,5}[ \t]+(?:S\.R\.L\.|SRL|S\.A\.|SA|S\.C\.S\.|S\.N\.C\.|P\.F\.A\.|PFA|I\.I\.|I\.F\.)(?![A-Za-zĂÂÎȘȚăâîșț])",
-            score=0.85
+            name="company_suffix_regex",
+            regex=r"(?-i:\b(?:S\.?C\.?[ \t]+)?[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț0-9\-&]*(?:[ \t]+(?:de|și|ale|la|pentru|[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț0-9\-&]*)){0,5}[ \t]+(?:S\.R\.L\.|SRL|S\.A\.|SA|S\.C\.S\.|S\.N\.C\.|P\.F\.A\.|PFA|I\.I\.|I\.F\.)(?![A-Za-zĂÂÎȘȚăâîșț]))",
+            score=0.85,
         )
 
         # Pattern 2: Law cabinets and professional offices
         cabinet_pattern = Pattern(
             name="law_cabinet_regex",
-            regex=r"\b[Cc]abinet(?:ul|ului)?[ \t]+(?:[Ii]ndividual[ \t]+)?de[ \t]+[Aa]vocat(?:ură)?[ \t]+[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\-]+(?:[ \t]+[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\-]+){0,3}\b",
+            regex=r"(?-i:\b[Cc]abinet(?:ul|ului)?[ \t]+(?:[Ii]ndividual[ \t]+)?de[ \t]+[Aa]vocat(?:ură)?[ \t]+[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\-]+(?:[ \t]+[A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\-]+){0,3}\b)",
             score=0.85,
         )
 
@@ -237,20 +237,6 @@ class RomanianCAENRecognizer(PatternRecognizer):
             supported_entity="ROMANIAN_CAEN",
             patterns=[caen_pattern],
             context=["caen", "cod caen", "activitate principala", "activitate"],
-            supported_language="ro",
-        )
-
-class RomanianInstitutionRecognizer(PatternRecognizer):
-    def __init__(self):
-        # Catches standard ID issuers, police, and courts + their subsequent locations/sectors
-        inst_pattern = Pattern(
-            name="institution_regex",
-            regex=r"(?i)\b(?:SPCEP|SCPLEP|SPCLEP|SPCJE|DEPABD|Poliția|Primăria|Judecătoria|Tribunalul|Curtea de Apel|Oficiul Registrului Comerțului|Baroul)[ \t]+(?:Sector[ \t]*\d+|[A-Za-zĂÂÎȘȚăâîșț]+(?:[ \t\-][A-Za-zĂÂÎȘȚăâîșț]+)*)",
-            score=0.85
-        )
-        super().__init__(
-            supported_entity="ORGANIZATION", # Maps seamlessly into your existing ORGANIZATION tags
-            patterns=[inst_pattern],
             supported_language="ro",
         )
 
